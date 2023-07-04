@@ -28,7 +28,7 @@ namespace ReadRenderRSSFeed.Pages
                 {
                     RSSData rssDataObj = new RSSData
                     {
-                        title = node.SelectSingleNode("title")?.InnerText, // == null) ? "" : node.SelectSingleNode("title").InnerText,
+                        title = node.SelectSingleNode("title")?.InnerText, 
                         description = node.SelectSingleNode("description")?.InnerText,
                         pubDate = node.SelectSingleNode("pubDate")?.InnerText,
                         link = node.SelectSingleNode("link")?.InnerText,
