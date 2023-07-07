@@ -1,51 +1,59 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Xml;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace ReadRenderRSSFeed.Pages
 {
     public class IndexModel : PageModel
     {
-        public List<RSSData> RssList { get; set; } = new();
+        public List<RssData> RssList { get; set; } = new();
 
         public async Task OnGet()
         {
-            RssList = new List<RSSData>();
+            RssList = new List<RssData>();
             using (HttpClient client = new HttpClient())
             {
                 HttpResponseMessage response = await client.GetAsync("http://scripting.com/rss.xml");
-                response.EnsureSuccessStatusCode();
 
-                string xmlContent = await response.Content.ReadAsStringAsync();
-
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(xmlContent);
-
-                foreach (XmlNode node in xmlDoc.SelectNodes("rss/channel/item").Cast<XmlNode>())
+                if (response.IsSuccessStatusCode)
                 {
-                    RSSData rssDataObj = new RSSData
-                    {
-                        title = node.SelectSingleNode("title")?.InnerText, 
-                        description = node.SelectSingleNode("description")?.InnerText,
-                        pubDate = node.SelectSingleNode("pubDate")?.InnerText,
-                        link = node.SelectSingleNode("link")?.InnerText,
-                    };
 
-                    RssList.Add(rssDataObj);
+                    string XmlContent = await response.Content.ReadAsStringAsync();
+
+                    XmlDocument XmlDoc = new XmlDocument();
+                    XmlDoc.LoadXml(XmlContent);
+
+                    foreach (XmlNode node in XmlDoc.SelectNodes("rss/channel/item").Cast<XmlNode>())
+                    {
+                        RssData RssDataObj = new RssData
+                        {
+                            Title = node.SelectSingleNode("title")?.InnerText,
+                            Description = node.SelectSingleNode("description")?.InnerText,
+                            PubDate = node.SelectSingleNode("pubDate")?.InnerText,
+                            Link = node.SelectSingleNode("link")?.InnerText,
+                        };
+
+                        RssList.Add(RssDataObj);
+                    }
+                }
+                else
+                {
+                    StatusCode((int)response.StatusCode);
                 }
             }
         }
     }
 
-    public class RSSData
+    public class RssData
     {
-        public string? title { get; set; }
-        public string? pubDate { get; set; }
-        public String? description { get; set; }
-        public string? link { get; set; }
+        public string? Title { get; set; }
+        public string? PubDate { get; set; }
+        public String? Description { get; set; }
+        public string? Link { get; set; }
 
     }
 }
